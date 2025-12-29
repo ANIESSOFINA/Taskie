@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Taskie - My Tasks</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --taskie-peach: #E59A7D;
+            --taskie-peach-light: #FFDDCC;
+            --taskie-bg: #FAF9F6;
+            --taskie-text: #2D3436;
+        }
+
+        /* THE THEME BACKGROUND */
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: #FAF3E8;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(186, 163, 224, 0.2) 0px, transparent 45%),
+                radial-gradient(at 100% 100%, rgba(229, 154, 125, 0.15) 0px, transparent 50%);
+            background-attachment: fixed;
+            color: var(--taskie-text);
+            min-height: 100vh;
+        }
+        
+        /* BIGGER BRANDING */
+        .sidebar-brand { padding: 2.5rem 1.5rem; display: flex; align-items: center; }
+        .brand-logo-box {
+            background-color: var(--taskie-peach);
+            width: 52px; height: 52px; border-radius: 16px;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 8px 16px rgba(229, 154, 125, 0.4);
+        }
+        .brand-logo-box i { font-size: 1.5rem; color: white; }
+        .brand-name { font-size: 1.8rem; font-weight: 800; letter-spacing: -1.2px; margin-left: 14px; color: var(--taskie-text); }
+
+        /* SIDEBAR */
+        #sidebar { 
+            background: rgba(255, 255, 255, 0.7); 
+            backdrop-filter: blur(15px);
+            min-width: 280px; min-height: 100vh; 
+            border-right: 1px solid rgba(0,0,0,0.05); 
+        }
+        .nav-link { color: #8e8e8e; margin: 8px 20px; border-radius: 12px; font-weight: 600; padding: 12px 15px; }
+        .nav-link.active { background-color: var(--taskie-peach-light); color: var(--taskie-peach); }
+
+        .page-header {
+            padding: 2rem; background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px);
+            border-radius: 30px; margin: 1.5rem; box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+            border: 1px solid rgba(255,255,255,0.6);
+        }
+
+        .task-container { 
+            background: white; border-radius: 30px; padding: 35px; 
+            box-shadow: 0 15px 50px rgba(0,0,0,0.03); 
+            border: 1px solid white;
+        }
+
+        .btn-peach { 
+            background: linear-gradient(135deg, #E59A7D 0%, #D17A5A 100%); 
+            border: none; border-radius: 50px; padding: 12px 28px; 
+            font-weight: 700; color: white; box-shadow: 0 10px 20px rgba(229, 154, 125, 0.3);
+            transition: 0.3s;
+        }
+        .btn-peach:hover { transform: translateY(-2px); color: white; }
+
+		#sidebar {
+			display: flex;
+			flex-direction: column;
+		}
+
+		.text-danger:hover {
+			background-color: #FFF5F5 !important;
+			color: #C53030 !important;
+		}
+
+        /* STATUS */
+        .badge-upcoming { background-color: #FEEBC8; color: #975A16; border-radius: 8px; padding: 6px 12px; }
+        .badge-progress { background-color: #EBF8FF; color: #2B6CB0; border-radius: 8px; padding: 6px 12px; }
+        .badge-completed { background-color: #C6F6D5; color: #276749; border-radius: 8px; padding: 6px 12px; }
+
+        @media (max-width: 768px) { #sidebar { margin-left: -280px; position: absolute; z-index: 1000; } #sidebar.active { margin-left: 0; } }
+    
+	</style>
+</head>
+<body>
+
+<div class="d-flex" id="wrapper">
+    <nav id="sidebar">
+        <div class="sidebar-brand">
+            <div class="brand-logo-box">
+                <i class="fas fa-clipboard-list"></i>
+            </div>
+            <span class="brand-name">Taskie</span>
+        </div>
+        <ul class="nav flex-column mt-2">
+            <li class="nav-item"><a class="nav-link" href="dashboard.html"><i class="fas fa-th-large me-2"></i> Dashboard</a></li>
+            <li class="nav-item"><a class="nav-link active" href="tasks.html"><i class="fas fa-list me-2"></i> My Tasks</a></li>
+            <li class="nav-item"><a class="nav-link" href="projects.html"><i class="fas fa-folder me-2"></i> Projects</a></li>
+        </ul>
+		<div class="mt-auto p-3">
+    <hr>
+    <a href="javascript:void(0)" onclick="logoutUser()" class="nav-link text-danger">
+        <i class="fas fa-sign-out-alt me-2"></i> Logout
+    </a>
+</div>
+    </nav>
+
+    <div class="w-100">
+        <div class="page-header d-flex justify-content-between align-items-center">
+            <div>
+                <button class="btn d-md-none p-0 me-3" id="menu-toggle"><i class="fas fa-bars"></i></button>
+                <h1 class="fw-bold mb-1" style="font-weight: 800; font-size: 2.2rem;">My Tasks</h1>
+                <p class="text-muted mb-0">Manage your daily university assignments</p>
+            </div>
+            <button class="btn btn-peach rounded-pill shadow-sm" data-bs-toggle="modal" data-bs-target="#addTaskModal">
+                <i class="fas fa-plus me-2"></i>Add Task
+            </button>
+        </div>
+
+        <div class="container-fluid px-4">
+            <div class="task-container">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="fw-bold mb-0" style="font-weight: 800;">Active Tasks</h4>
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle px-3 rounded-pill" type="button" id="filterDropdown" data-bs-toggle="dropdown">
+                            <i class="fas fa-filter me-1"></i> Filter By
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                            <li><a class="dropdown-item filter-btn" href="#" data-filter="all">All Tasks</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item filter-btn" href="#" data-filter="Upcoming">Upcoming</a></li>
+                            <li><a class="dropdown-item filter-btn" href="#" data-filter="In Progress">In Progress</a></li>
+                            <li><a class="dropdown-item filter-btn" href="#" data-filter="Completed">Completed</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle" id="taskTable">
+                        <thead class="table-light">
+                            <tr class="text-muted small">
+                                <th>TASK NAME</th>
+                                <th>NOTES</th>
+                                <th>DUE DATE</th>
+                                <th>STATUS</th> 
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr data-status="In Progress">
+                                <td><span class="fw-bold">Submission of IMS566 Project</span></td>
+                                <td>Web Design</td>
+                                <td>Dec 30, 2025</td>
+                                <td><span class="badge badge-progress">In Progress</span></td>
+                            </tr>
+                            <tr data-status="Upcoming">
+                                <td><span class="fw-bold">Final Test Study Session</span></td>
+                                <td>PTA</td>
+                                <td>Jan 12, 2025</td>
+                                <td><span class="badge badge-upcoming">Upcoming</span></td>
+                            </tr>
+                            <tr data-status="Upcoming">
+                                <td><span class="fw-bold">IMS560 Lab Test</span></td>
+                                <td>Database</td>
+                                <td>Jan 6, 2025</td>
+                                <td><span class="badge badge-upcoming">Upcoming</span></td>
+                            </tr>
+                            <tr data-status="Completed">
+                                <td><span class="fw-bold">SISMA Club Meeting</span></td>
+                                <td>Student Council Room</td>
+                                <td>Dec 10, 2024</td>
+                                <td><span class="badge badge-completed">Completed</span></td>
+                            </tr>
+                            <tr data-status="Upcoming">
+                                <td><span class="fw-bold">Internship Application</span></td>
+                                <td>Career Portal Submission</td>
+                                <td>Jan 15, 2025</td>
+                                <td><span class="badge badge-upcoming">Upcoming</span></td>
+                            </tr>
+                            <tr data-status="In Progress">
+                                <td><span class="fw-bold">Group Project Discussion</span></td>
+                                <td>Information Systems PM</td>
+                                <td>Dec 30, 2024</td>
+                                <td><span class="badge badge-progress">In Progress</span></td>
+                            </tr>
+                            <tr data-status="Upcoming">
+                                <td><span class="fw-bold">Library Book Return</span></td>
+                                <td>PTA</td>
+                                <td>Dec 31, 2024</td>
+                                <td><span class="badge badge-upcoming">Upcoming</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <footer class="text-center py-4 mt-auto text-muted">
+            <small>IMS566 Project &copy; 2025 Taskie | Designed by Anies Sofina</small>
+        </footer>
+    </div>
+</div>
+
+<div class="modal fade" id="addTaskModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content" style="border-radius: 25px; border: none;">
+        <div class="modal-header border-0 px-4 pt-4">
+          <h5 class="modal-title fw-bold">Add New Task</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body px-4 pb-4">
+          <form id="taskForm">
+            <div class="mb-3">
+              <label class="form-label small fw-bold text-muted">TASK NAME</label>
+              <input type="text" class="form-control rounded-3" id="taskName" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-bold text-muted">NOTES</label>
+              <input type="text" class="form-control rounded-3" id="taskNote">
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-bold text-muted">DUE DATE</label>
+              <input type="date" class="form-control rounded-3" id="taskDate" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-bold text-muted">STATUS</label>
+              <select class="form-select rounded-3" id="taskStatus">
+                <option value="Upcoming">Upcoming</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Completed">Completed</option>
+              </select>
+            </div>
+            <button type="submit" class="btn btn-peach w-100 rounded-pill py-2 mt-3 shadow-sm">Save Task</button>
+          </form>
+        </div>
+      </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.getElementById('menu-toggle').addEventListener('click', function() {
+        document.getElementById('sidebar').classList.toggle('active');
+    });
+
+    document.querySelectorAll('.filter-btn').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const filterValue = this.getAttribute('data-filter');
+            const rows = document.querySelectorAll('#taskTable tbody tr');
+            rows.forEach(row => {
+                const status = row.getAttribute('data-status');
+                row.style.display = (filterValue === 'all' || status === filterValue) ? '' : 'none';
+            });
+            document.getElementById('filterDropdown').innerHTML = `<i class="fas fa-filter me-1"></i> Filter: ${filterValue}`;
+        });
+    });
+
+function logoutUser() {
+    if (confirm("Are you sure you want to logout?")) {
+        window.location.href = "index.html";
+    }
+}
+
+    document.getElementById('taskForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const name = document.getElementById('taskName').value;
+        const note = document.getElementById('taskNote').value;
+        const date = document.getElementById('taskDate').value;
+        const status = document.getElementById('taskStatus').value;
+        let badgeClass = (status === 'Upcoming') ? 'badge-upcoming' : (status === 'In Progress' ? 'badge-progress' : 'badge-completed');
+
+        const tableBody = document.querySelector('#taskTable tbody');
+        const newRow = document.createElement('tr');
+        newRow.setAttribute('data-status', status);
+        newRow.innerHTML = `<td><span class="fw-bold">${name}</span></td><td>${note}</td><td>${date}</td><td><span class="badge ${badgeClass}">${status}</span></td>`;
+        tableBody.appendChild(newRow);
+        this.reset();
+        bootstrap.Modal.getInstance(document.getElementById('addTaskModal')).hide();
+    });
+</script>
+</body>
+</html>
